@@ -27,12 +27,19 @@ load('data/all_inat.Rdata')
 load('data/cities.Rdata')
 ```
 
-## Including Plots
+## Iniitial look
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r CNC}
+sp <- all_inat %>%
+  filter(scientific_name == "Capsella bursa-pastoris") %>%
+  group_by(hometown) %>%
+  summarise(count = n())
+sp
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r newData}
+library (rinat)
+sp <- get_inat_obs(taxon_name = "Capsella bursa-pastoris", quality = "research",
+                       maxresults = 99999)
+```
+There are 2656 records of shepherd's purse. Next, map these and link them to
+NLCD data to look at increasing urbanizaiton intensity linkage.
