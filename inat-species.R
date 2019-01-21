@@ -30,5 +30,15 @@ sp_cnc
 # *************************************************************
 # ALL RESEARCH GRADE OBS
 # *************************************************************
-sp_all <- get_inat_obs(taxon_name = "Capsella bursa-pastoris", quality = "research",
-                   maxresults = 99999)
+# set up bounding box for US only (optional)
+bounds <- c(25, -125.1, 49.5, -66.7)
+
+# retrieve observations
+sp_all <- get_inat_obs(taxon_name = "Capsella bursa-pastoris", 
+                       quality = "research", 
+                       maxresults = 99999,
+                       bounds = bounds)
+
+# map observations
+sp_map <- inat_map(sp_all, plot = FALSE)
+sp_map + borders("state") + theme_bw()
