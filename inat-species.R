@@ -10,6 +10,7 @@
 library(tidyverse)
 library(ggmap)
 library(rinat)
+library(FedData)
 
 # load files
 load('data/all_inat.Rdata')
@@ -42,3 +43,10 @@ sp_all <- get_inat_obs(taxon_name = "Capsella bursa-pastoris",
 # map observations
 sp_map <- inat_map(sp_all, plot = FALSE)
 sp_map + borders("state") + theme_bw()
+
+# *************************************************************
+# LINK WITH NLCD DATA
+coords <- sp %>% select(longitude, latitude) %>%
+  na.omit()
+sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
+usa_nlcd <- get_nlcd(template = sp_points, label = "USA")
