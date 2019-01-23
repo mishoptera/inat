@@ -50,3 +50,7 @@ coords <- sp %>% select(longitude, latitude) %>%
   na.omit()
 sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
 usa_nlcd <- get_nlcd(template = sp_points, label = "USA")
+
+# or try just downloading the file and working with it through something
+# like this: https://rpubs.com/msundar/large_data_analysis
+
