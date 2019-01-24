@@ -11,6 +11,7 @@ library(tidyverse)
 library(ggmap)
 library(rinat)
 library(FedData)
+library(reticulate)
 
 # load files
 load('data/all_inat.Rdata')
@@ -53,4 +54,7 @@ usa_nlcd <- get_nlcd(template = sp_points, label = "USA")
 
 # or try just downloading the file and working with it through something
 # like this: https://rpubs.com/msundar/large_data_analysis
+# seems like it might be best to run this in python which is a good excuse
+# for me to finally learn how to do this.  installing reticulate package so
+# I can connect the two as necessary.
 
