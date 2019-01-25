@@ -33,7 +33,8 @@ sp_cnc
 # ALL RESEARCH GRADE OBS
 # *************************************************************
 # set up bounding box for US only (optional)
-bounds <- c(25, -125.1, 49.5, -66.7)
+bounds <- #c(25, -125.1, 49.5, -66.7) #all US
+ c(30.3,-104.21,39.53 ,-90.36) #texas area
 
 # retrieve observations
 sp_all <- get_inat_obs(taxon_name = "Capsella bursa-pastoris", 
@@ -47,14 +48,22 @@ sp_map + borders("state") + theme_bw()
 
 # *************************************************************
 # LINK WITH NLCD DATA
-coords <- sp %>% select(longitude, latitude) %>%
+coords <- sp_all %>% select(longitude, latitude) %>%
   na.omit()
 sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
 usa_nlcd <- get_nlcd(template = sp_points, label = "USA")
-
+# above doesn't really make sense. I'm trying to cover too large of an area.
 # or try just downloading the file and working with it through something
 # like this: https://rpubs.com/msundar/large_data_analysis
 # seems like it might be best to run this in python which is a good excuse
 # for me to finally learn how to do this.  installing reticulate package so
 # I can connect the two as necessary.
+
+city_points <- na.omit(data.frame(run_cities))
+coordinates(city_points) = ~longitude + latitude
+proj4string(city_points) <- CRS("+init=epsg:4326")
+city_points2 <- spTransform(city_points, proj4string(run_rasters))
+city_points3 <- raster::extract(run_rasters, city_points, sp=TRUE)
+city_points4 <- as.data.frame(spTransform(city_points3, CRS("+init=epsg:4326")))
+names(city_points4)[39] <- "NLCD_layer" #for 2016 it's 39, for 2017 it's 38, for 2018 its 37
 
