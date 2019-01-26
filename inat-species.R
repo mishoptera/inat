@@ -33,8 +33,8 @@ sp_cnc
 # ALL RESEARCH GRADE OBS
 # *************************************************************
 # set up bounding box for US only (optional)
-bounds <- #c(25, -125.1, 49.5, -66.7) #all US
- c(30.3,-104.21,39.53 ,-90.36) #texas area
+bounds <- c(25, -125.1, 49.5, -66.7) #all US
+
 
 # retrieve observations
 sp_all <- get_inat_obs(taxon_name = "Capsella bursa-pastoris", 
@@ -58,6 +58,9 @@ usa_nlcd <- get_nlcd(template = sp_points, label = "USA")
 # seems like it might be best to run this in python which is a good excuse
 # for me to finally learn how to do this.  installing reticulate package so
 # I can connect the two as necessary.
+
+# new idea is to export to a google fusion table and run some script in the google
+# earth engine.
 
 city_points <- na.omit(data.frame(run_cities))
 coordinates(city_points) = ~longitude + latitude
