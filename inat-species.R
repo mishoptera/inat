@@ -32,6 +32,30 @@ sp_cnc
 # *************************************************************
 # ALL RESEARCH GRADE OBS
 # *************************************************************
+# To make it easier to process, limit it to just the biggest cities in the country
+# This script creates a list of the largest cities in the country to compare against the iNat list
+library(htmltab)
+# downloading table of the largest cities in the US
+bigCities <- htmltab("https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population",5) 
+bigCities2 <- bigCities[2:3] %>%
+  as.tibble()
+
+# downloading a table of cities and their abbreviations to cross reference
+states <- htmltab("https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States", 1)
+colnames(states)[1:2] <- c("State", "usps")
+states2 <- states %>% 
+  select(State:usps) %>%
+  as.tibble() 
+
+# combining the above to create a list of common cities to cross-ref with iNaturalist place_guess
+cities <- bigCities2 %>%
+  left_join(states2, by = "State") %>%
+  unite(cityNames, City, usps, sep = ", ")
+
+# seartch iNat observations place_guess for observations that match this string!
+
+
+
 # set up bounding box for US only (optional)
 bounds <- c(25, -125.1, 49.5, -66.7) #all US
 
@@ -47,25 +71,17 @@ sp_map <- inat_map(sp_all, plot = FALSE)
 sp_map + borders("state") + theme_bw()
 
 # *************************************************************
-# To make it easier, limit it to just the biggest cities in the country
-library(htmltab)
-table <- htmltab("https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population",5)
 
-# ******
-# LINK WITH NLCD DATA
+# ************************************
+
 coords <- sp_all %>% select(longitude, latitude) %>%
   na.omit()
 sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
 usa_nlcd <- get_nlcd(template = sp_points, label = "USA")
-# above doesn't really make sense. I'm trying to cover too large of an area.
-# or try just downloading the file and working with it through something
-# like this: https://rpubs.com/msundar/large_data_analysis
-# seems like it might be best to run this in python which is a good excuse
-# for me to finally learn how to do this.  installing reticulate package so
-# I can connect the two as necessary.
 
-# new idea is to export to a google fusion table and run some script in the google
-# earth engine.
+
+# LINK WITH NLCD DATA
+# 
 
 city_points <- na.omit(data.frame(run_cities))
 coordinates(city_points) = ~longitude + latitude
