@@ -70,3 +70,45 @@ city_points3 <- raster::extract(run_rasters, city_points, sp=TRUE)
 city_points4 <- as.data.frame(spTransform(city_points3, CRS("+init=epsg:4326")))
 names(city_points4)[39] <- "NLCD_layer" #for 2016 it's 39, for 2017 it's 38, for 2018 its 37
 
+# javascript code to try
+// As I can't access your FusionTable,
+// I make random points and create a FeatureCollection
+var p1 = ee.Geometry.Point([142.36083984375, -37.466138602344046])
+var p2 = ee.Geometry.Point([143.23974609375, -37.04640889969956])
+var pts = ee.FeatureCollection(ee.List([ee.Feature(p1),ee.Feature(p2)]))
+
+//IMPORT LANDSAT IMAGE
+var L82014pre = ee.ImageCollection('LANDSAT/LC8_SR') //Landsat 8 Surface   reflectance
+.filter(ee.Filter.eq('wrs_path', 94))
+.filter(ee.Filter.eq('wrs_row', 86)) 
+.filterDate(ee.Date.fromYMD(2013,12,13), ee.Date.fromYMD(2014,1,15))
+
+// Empty Collection to fill
+var ft = ee.FeatureCollection(ee.List([]))
+
+var fill = function(img, ini) {
+// type cast
+var inift = ee.FeatureCollection(ini)
+
+// gets the values for the points in the current img
+var ft2 = img.reduceRegions(pts, ee.Reducer.first(),30)
+
+// gets the date of the img
+  var date = img.date().format()
+
+// writes the date in each feature
+var ft3 = ft2.map(function(f){return f.set("date", date)})
+
+// merges the FeatureCollections
+return inift.merge(ft3)
+}
+
+// Iterates over the ImageCollection
+var newft = ee.FeatureCollection(L82014pre.iterate(fill, ft))
+
+// Export
+Export.table.toDrive(newft,
+"anyDescription",
+"anyFolder",
+"anyNameYouWant")
+
