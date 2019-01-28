@@ -32,6 +32,21 @@ sp_cnc
 # *************************************************************
 # ALL RESEARCH GRADE OBS
 # *************************************************************
+
+# set up bounding box for US only (optional)
+bounds <- c(25, -125.1, 49.5, -66.7) #all US
+
+# retrieve observations
+sp_all <- get_inat_obs(taxon_name = "Capsella bursa-pastoris", 
+                       quality = "research", 
+                       maxresults = 99999,
+                       bounds = bounds)
+
+# map observations
+sp_map <- inat_map(sp_all, plot = FALSE)
+sp_map + borders("state") + theme_bw()
+
+# *************************************************************
 # To make it easier to process, limit it to just the biggest cities in the country
 # This script creates a list of the largest cities in the country to compare against the iNat list
 library(htmltab)
@@ -50,27 +65,23 @@ states2 <- states %>%
 # combining the above to create a list of common cities to cross-ref with iNaturalist place_guess
 cities <- bigCities2 %>%
   left_join(states2, by = "State") %>%
-  unite(cityNames, City, usps, sep = ", ")
+  unite(cityNames, City, usps, sep = ", ") %>%
+  pull(cityNames)
+cities
+cities_match <- str_c(cities, collapse = "|")
 
 # seartch iNat observations place_guess for observations that match this string!
+sp_cities <- sp_all %>%
+  as.tibble() %>%  
+  filter(str_detect(place_guess, cities_match)) %>%
+  mutate (city = str_extract (place_guess, cities_match)) 
 
+# how many cities have observations?
+sp_cities %>%
+  group_by (city) %>%
+  summarise (obs = n()) %>%
+  arrange (desc(obs))
 
-
-# set up bounding box for US only (optional)
-bounds <- c(25, -125.1, 49.5, -66.7) #all US
-
-
-# retrieve observations
-sp_all <- get_inat_obs(taxon_name = "Capsella bursa-pastoris", 
-                       quality = "research", 
-                       maxresults = 99999,
-                       bounds = bounds)
-
-# map observations
-sp_map <- inat_map(sp_all, plot = FALSE)
-sp_map + borders("state") + theme_bw()
-
-# *************************************************************
 
 # ************************************
 
