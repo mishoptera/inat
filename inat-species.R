@@ -103,13 +103,11 @@ coords <- sp_all %>% select(longitude, latitude) %>%
   na.omit()
 sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
 
-source('functions/isp_functions.r')
-taxa_names <- c("dicots", "monocots", "ferns", "conifers", "birds", "insects", "reptiles", "amphibians", "mammals", "gastropods")
+# test = city_names
 
 # create simple ranking tables for each taxa (landcover collapsed)
-lapply(taxa_names, function(i){
-  assign(paste0("simple_", i) , create_big_table_simple(all_inat %>% filter (taxon == i), i), 
-         envir = .GlobalEnv)
+lapply(test, function(i){
+  create_big_table_simple(all_inat %>% filter (taxon == i), i).
 })
 
 # table that collapses all land cover types, but pulls out each city
