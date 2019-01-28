@@ -36,7 +36,7 @@ sp_cnc
 # set up bounding box for US only (optional)
 bounds <- c(25, -125.1, 49.5, -66.7) #all US
 
-# retrieve observations
+# retrieve observations for a given species
 sp_all <- get_inat_obs(taxon_name = "Capsella bursa-pastoris", 
                        quality = "research", 
                        maxresults = 99999,
@@ -47,13 +47,23 @@ sp_map <- inat_map(sp_all, plot = FALSE)
 sp_map + borders("state") + theme_bw()
 
 # *************************************************************
+# NLCD MATCHING
 # To make it easier to process, limit it to just the biggest cities in the country
 # This script creates a list of the largest cities in the country to compare against the iNat list
+
 library(htmltab)
 # downloading table of the largest cities in the US
+# 311 incorporated places in the United States with a population of at least 100,000 on July 1, 2017, 
+# as estimated by the United States Census Bureau.
 bigCities <- htmltab("https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population",5) 
 bigCities2 <- bigCities[2:3] %>%
   as.tibble()
+#bigCities3 <- bigCities2 %>%
+  unite(cityNames, City:State, sep = ", ")
+#nyc <- tibble(cityNames = "NYC")
+#currently commented out is an attempt to inclue more place locations, but doesn't add that much
+#more an somewhat complicates the analysis.  I think I'm just going to get rid of using the 
+#place_guess method soon anyway.
 
 # downloading a table of cities and their abbreviations to cross reference
 states <- htmltab("https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States", 1)
@@ -66,21 +76,25 @@ states2 <- states %>%
 cities <- bigCities2 %>%
   left_join(states2, by = "State") %>%
   unite(cityNames, City, usps, sep = ", ") %>%
+  #bind_rows(bigCities3) %>%
+  #bind_rows(nyc) %>%
   pull(cityNames)
 cities
 cities_match <- str_c(cities, collapse = "|")
 
-# seartch iNat observations place_guess for observations that match this string!
+# seartch iNat observations place_guess for observations that match this string.
 sp_cities <- sp_all %>%
   as.tibble() %>%  
   filter(str_detect(place_guess, cities_match)) %>%
   mutate (city = str_extract (place_guess, cities_match)) 
 
-# how many cities have observations?
-sp_cities %>%
+# how many cities have observations?, and which cities should we run NLCD on?
+test <- sp_cities %>%
   group_by (city) %>%
   summarise (obs = n()) %>%
-  arrange (desc(obs))
+  arrange (desc(obs)) %>%
+  pull(obs)
+test
 
 
 # ************************************
@@ -88,7 +102,25 @@ sp_cities %>%
 coords <- sp_all %>% select(longitude, latitude) %>%
   na.omit()
 sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
-usa_nlcd <- get_nlcd(template = sp_points, label = "USA")
+
+source('functions/isp_functions.r')
+taxa_names <- c("dicots", "monocots", "ferns", "conifers", "birds", "insects", "reptiles", "amphibians", "mammals", "gastropods")
+
+# create simple ranking tables for each taxa (landcover collapsed)
+lapply(taxa_names, function(i){
+  assign(paste0("simple_", i) , create_big_table_simple(all_inat %>% filter (taxon == i), i), 
+         envir = .GlobalEnv)
+})
+
+# table that collapses all land cover types, but pulls out each city
+big_simple_ranks <- simple_birds %>%
+  bind_rows(simple_mammals, simple_reptiles, simple_amphibians, simple_gastropods, simple_insects, simple_dicots, simple_monocots, simple_ferns, simple_conifers) %>%
+  left_join(names, by="scientific_name") %>%
+  left_join(total_cities, by="scientific_name") %>%
+  distinct(scientific_name, .keep_all = TRUE) %>%
+  filter(num_cities>=4)
+city_nlcd <- get_nlcd (template = (create_bb("Austin, TX")), label = 'Austin')
+
 
 
 # LINK WITH NLCD DATA
