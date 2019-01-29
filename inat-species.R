@@ -89,12 +89,11 @@ sp_cities <- sp_all %>%
   mutate (city = str_extract (place_guess, cities_match)) 
 
 # how many cities have observations?, and which cities should we run NLCD on?
-test <- sp_cities %>%
+city_names <- sp_cities %>%
   group_by (city) %>%
   summarise (obs = n()) %>%
   arrange (desc(obs)) %>%
-  pull(obs)
-test
+city_names
 
 
 # ************************************
@@ -105,10 +104,15 @@ sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84")
 
 # test = city_names
 
-# create simple ranking tables for each taxa (landcover collapsed)
-lapply(test, function(i){
-  create_big_table_simple(all_inat %>% filter (taxon == i), i).
+
+lapply(city_names, function(i){
+  process_cities(sp_cities %>% filter (city == city_names))
 })
+
+process_cities <- function(city_name) {
+  
+  
+}
 
 # table that collapses all land cover types, but pulls out each city
 big_simple_ranks <- simple_birds %>%
