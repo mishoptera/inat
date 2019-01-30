@@ -16,9 +16,11 @@ library(reticulate)
 # load files
 load('data/all_inat.Rdata')
 load('data/cities.Rdata')
+load('data/allCityNames.Rdata')
 
 # source files
 source("keys.R")
+register_google(key = personal_google_api_key) 
 
 
 # *************************************************************
@@ -69,10 +71,11 @@ states <- states %>%
 
 # combining list of common cities with state abbreviations, this can be used
 # to cross reference with place_guess or to pull nlcd tiles
-cities <- bigCities %>%
+allCityNames <- bigCities %>%
   left_join(states2, by = "State") %>%
   unite(cityNames, City, usps, sep = ", ") %>%
   pull(cityNames)
+save(allCityNames, file = "data/allCityNames.RData")
 
 # to use in conjunction with place_guess
 cities_match <- str_c(cities, collapse = "|")
@@ -107,7 +110,7 @@ create_bb <- function (city_name) {
   return (extentB)
 }
 
-city_nlcd <- get_nlcd (template = (create_bb(i)), label = i)
+city_nlcd <- get_nlcd (template = (extentB), label = i)
 
 
 process_cities <- function(city_name) {
