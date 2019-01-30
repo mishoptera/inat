@@ -17,6 +17,9 @@ library(reticulate)
 load('data/all_inat.Rdata')
 load('data/cities.Rdata')
 
+# source files
+source("keys.R")
+
 
 # *************************************************************
 # City Nature Challenge Data
@@ -57,25 +60,21 @@ library(htmltab)
 bigCities <- htmltab("https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population",5)[2:3] %>%
   as.tibble()
 
-#as a combined version of the above
-bigCities3 <- bigCities %>%
-  unite(cityNames, City:State, sep = ", ")
-
 # downloading a table of cities and their abbreviations to cross reference
 states <- htmltab("https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States", 1)
 colnames(states)[1:2] <- c("State", "usps")
-states2 <- states %>% 
+states <- states %>% 
   select(State:usps) %>%
   as.tibble() 
 
-# combining the above to create a list of common cities to cross-ref with iNaturalist place_guess
-cities <- bigCities2 %>%
+# combining list of common cities with state abbreviations, this can be used
+# to cross reference with place_guess or to pull nlcd tiles
+cities <- bigCities %>%
   left_join(states2, by = "State") %>%
   unite(cityNames, City, usps, sep = ", ") %>%
-  #bind_rows(bigCities3) %>%
-  #bind_rows(nyc) %>%
   pull(cityNames)
-cities
+
+# to use in conjunction with place_guess
 cities_match <- str_c(cities, collapse = "|")
 
 # seartch iNat observations place_guess for observations that match this string.
@@ -84,28 +83,49 @@ sp_cities <- sp_all %>%
   filter(str_detect(place_guess, cities_match)) %>%
   mutate (city = str_extract (place_guess, cities_match)) 
 
-# how many cities have observations?, and which cities should we run NLCD on?
-city_names <- sp_cities %>%
+# how many cities have observations that match place_guess?, and which cities should we run NLCD on?
+num_obs_per_city <- sp_cities %>%
   group_by (city) %>%
   summarise (obs = n()) %>%
-  arrange (desc(obs)) %>%
-city_names
+  arrange (desc(obs)) 
+num_obs_per_city
 
 
 # ************************************
+# Actual matching to NLCD now.
+cities_to_nlcd <- num_obs_per_city %>% 
+  filter(obs > 10) %>%
+  pull(city)
 
-coords <- sp_all %>% select(longitude, latitude) %>%
-  na.omit()
-sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
+i <- "New York, NY"
+city_name <- i
+# r generic creating bounding box function
+create_bb <- function (city_name) {
+  city <- get_map(city_name, zoom = 9)
+  bb<-attr(city, 'bb')
+  extentB <- polygon_from_extent(raster::extent(bb$ll.lon, bb$ur.lon, bb$ll.lat, bb$ur.lat), proj4string = "+proj=longlat +ellps=GRS80   +datum=NAD83 +no_defs")
+  return (extentB)
+}
 
-# test = city_names
+city_nlcd <- get_nlcd (template = (create_bb(i)), label = i)
 
+
+process_cities <- function(city_name) {
+  coords <- sp_all %>% select(longitude, latitude) %>%
+    na.omit()
+  sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
+  
+  
+}
 
 lapply(city_names, function(i){
-  process_cities(sp_cities %>% filter (city == city_names))
+  process_cities(sp_cities)
 })
 
 process_cities <- function(city_name) {
+  coords <- sp_all %>% select(longitude, latitude) %>%
+    na.omit()
+  sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
   
   
 }
