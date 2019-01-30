@@ -11,7 +11,7 @@ library(tidyverse)
 library(ggmap)
 library(rinat)
 library(FedData)
-library(reticulate)
+library(sf)
 
 # load files
 load('data/all_inat.Rdata')
@@ -52,65 +52,21 @@ sp_map + borders("state") + theme_bw()
 
 # *************************************************************
 # NLCD MATCHING
-# To make it easier to process, limit it to just the biggest cities in the country
-# This script creates a list of the largest cities in the country to compare against the iNat list
+# *************************************************************
+# To make it easier to process, limited to just the biggest cities in the country
 
-library(htmltab)
-# downloading table of the largest cities in the US
-# 311 incorporated places in the United States with a population of at least 100,000 on July 1, 2017, 
-# as estimated by the United States Census Bureau.
-bigCities <- htmltab("https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population",5)[2:3] %>%
-  as.tibble()
+# to test functions
+city_name <- i <- "New York, NY"
 
-# downloading a table of cities and their abbreviations to cross reference
-states <- htmltab("https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States", 1)
-colnames(states)[1:2] <- c("State", "usps")
-states <- states %>% 
-  select(State:usps) %>%
-  as.tibble() 
-
-# combining list of common cities with state abbreviations, this can be used
-# to cross reference with place_guess or to pull nlcd tiles
-allCityNames <- bigCities %>%
-  left_join(states2, by = "State") %>%
-  unite(cityNames, City, usps, sep = ", ") %>%
-  pull(cityNames)
-save(allCityNames, file = "data/allCityNames.RData")
-
-# to use in conjunction with place_guess
-cities_match <- str_c(cities, collapse = "|")
-
-# seartch iNat observations place_guess for observations that match this string.
-sp_cities <- sp_all %>%
-  as.tibble() %>%  
-  filter(str_detect(place_guess, cities_match)) %>%
-  mutate (city = str_extract (place_guess, cities_match)) 
-
-# how many cities have observations that match place_guess?, and which cities should we run NLCD on?
-num_obs_per_city <- sp_cities %>%
-  group_by (city) %>%
-  summarise (obs = n()) %>%
-  arrange (desc(obs)) 
-num_obs_per_city
-
-
-# ************************************
-# Actual matching to NLCD now.
-cities_to_nlcd <- num_obs_per_city %>% 
-  filter(obs > 10) %>%
-  pull(city)
-
-i <- "New York, NY"
-city_name <- i
-# r generic creating bounding box function
-create_bb <- function (city_name) {
+# get NLCD tile for city
+city_nlcd <- function (city_name) {
   city <- get_map(city_name, zoom = 9)
   bb<-attr(city, 'bb')
   extentB <- polygon_from_extent(raster::extent(bb$ll.lon, bb$ur.lon, bb$ll.lat, bb$ur.lat), proj4string = "+proj=longlat +ellps=GRS80   +datum=NAD83 +no_defs")
-  return (extentB)
+  city_nlcd <- get_nlcd (template = (extentB), label = city_name)
 }
 
-city_nlcd <- get_nlcd (template = (extentB), label = i)
+
 
 
 process_cities <- function(city_name) {
