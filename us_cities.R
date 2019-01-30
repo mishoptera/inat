@@ -63,5 +63,9 @@ num_obs_per_city <- sp_cities %>%
   arrange (desc(obs)) 
 num_obs_per_city
 
+cities_to_nlcd <- num_obs_per_city %>% 
+  filter(obs > 10) %>%
+  pull(city)
+
 
 
