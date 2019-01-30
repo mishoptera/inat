@@ -32,7 +32,6 @@ sp_cnc
 # *************************************************************
 # ALL RESEARCH GRADE OBS
 # *************************************************************
-
 # set up bounding box for US only (optional)
 bounds <- c(25, -125.1, 49.5, -66.7) #all US
 
@@ -55,15 +54,12 @@ library(htmltab)
 # downloading table of the largest cities in the US
 # 311 incorporated places in the United States with a population of at least 100,000 on July 1, 2017, 
 # as estimated by the United States Census Bureau.
-bigCities <- htmltab("https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population",5) 
-bigCities2 <- bigCities[2:3] %>%
+bigCities <- htmltab("https://en.wikipedia.org/wiki/List_of_United_States_cities_by_population",5)[2:3] %>%
   as.tibble()
-#bigCities3 <- bigCities2 %>%
+
+#as a combined version of the above
+bigCities3 <- bigCities %>%
   unite(cityNames, City:State, sep = ", ")
-#nyc <- tibble(cityNames = "NYC")
-#currently commented out is an attempt to inclue more place locations, but doesn't add that much
-#more an somewhat complicates the analysis.  I think I'm just going to get rid of using the 
-#place_guess method soon anyway.
 
 # downloading a table of cities and their abbreviations to cross reference
 states <- htmltab("https://en.wikipedia.org/wiki/List_of_states_and_territories_of_the_United_States", 1)
