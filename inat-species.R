@@ -56,14 +56,23 @@ sp_map + borders("state") + theme_bw()
 # To make it easier to process, limited to just the biggest cities in the country
 
 # to test functions
-city_name <- i <- "New York, NY"
+city_name <- i <- "Oakland, CA"
 
 # get NLCD tile for city
-city_nlcd <- function (city_name) {
+city_nlcd <- function (city_name, sp_all) {
   city <- get_map(city_name, zoom = 9)
   bb<-attr(city, 'bb')
   extentB <- polygon_from_extent(raster::extent(bb$ll.lon, bb$ur.lon, bb$ll.lat, bb$ur.lat), proj4string = "+proj=longlat +ellps=GRS80   +datum=NAD83 +no_defs")
   city_nlcd <- get_nlcd (template = (extentB), label = city_name)
+  # next subset all observations by the same bounding box and then perform the match.
+  # how to do this subset? Sweet! do not need to do any spatial points magic. Just looks
+  # at coordinates and see whether they fall between ll.lat and ur.lat and ll.lon and ur.lon!
+  sp_city <- sp_all %>%
+    filter(latitude > bb$ll.lat & latitude < bb$ur.lat &
+             longitude > bb$ll.lon & longitude < bb$ur.lon)
+  # great that works! new problem is for cities that overlap in bounding boxes how not to have 
+  # duplicate processing?  I guess that's not such a big issue since it's just processing time,
+  # and we can just use 'distinct()' later.
 }
 
 
