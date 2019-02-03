@@ -53,7 +53,8 @@ sp_map + borders("state") + theme_bw()
 # *************************************************************
 # NLCD MATCHING
 # *************************************************************
-# To make it easier to process, limited to just the biggest cities in the country
+# To make it easier to process, limited to just the biggest cities in the country which
+# were pulled from US census as cities over 100,000 residents.
 
 # to test functions
 city_name <- i <- "Oakland, CA"
@@ -73,45 +74,33 @@ city_nlcd <- function (city_name, sp_all) {
   # great that works! new problem is for cities that overlap in bounding boxes how not to have 
   # duplicate processing?  I guess that's not such a big issue since it's just processing time,
   # and we can just use 'distinct()' later.
-}
-
-
-
-
-process_cities <- function(city_name) {
-  coords <- sp_all %>% select(longitude, latitude) %>%
+  coords <- sp_city %>% select(longitude, latitude) %>%
     na.omit()
   sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
   
-  
 }
 
-lapply(city_names, function(i){
-  process_cities(sp_cities)
-})
+# make inat data spatial
+pts <- data.frame(la)
+pts <- na.omit(pts)
+coordinates(pts) = ~longitude + latitude
 
-process_cities <- function(city_name) {
-  coords <- sp_all %>% select(longitude, latitude) %>%
-    na.omit()
-  sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
-  
-  
-}
+#transform pts data to the appropriate NLCD tile
+proj4string(pts) <- CRS("+init=epsg:4326")
+pts2 <- spTransform(pts, proj4string(NLCD_LosAngeles))
 
-# table that collapses all land cover types, but pulls out each city
-big_simple_ranks <- simple_birds %>%
-  bind_rows(simple_mammals, simple_reptiles, simple_amphibians, simple_gastropods, simple_insects, simple_dicots, simple_monocots, simple_ferns, simple_conifers) %>%
-  left_join(names, by="scientific_name") %>%
-  left_join(total_cities, by="scientific_name") %>%
-  distinct(scientific_name, .keep_all = TRUE) %>%
-  filter(num_cities>=4)
-city_nlcd <- get_nlcd (template = (create_bb("Austin, TX")), label = 'Austin')
+#extract value to points
+pts3 <- raster::extract(NLCD_LosAngeles, pts2, sp=TRUE)
+
+#make it back into a normal dataframe again
+pts4 <- spTransform(pts3, CRS("+init=epsg:4326"))
+pts5 <- as.data.frame(pts4)
+
+#assign it as new sf data
+la2 <- pts5
 
 
-
-# LINK WITH NLCD DATA
-# 
-
+# what is going on here?
 city_points <- na.omit(data.frame(run_cities))
 coordinates(city_points) = ~longitude + latitude
 proj4string(city_points) <- CRS("+init=epsg:4326")
