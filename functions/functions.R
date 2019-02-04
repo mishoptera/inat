@@ -65,5 +65,8 @@ city_nlcd <- function (city_name, sp_all) {
   sp_city_wNLCD <- spTransform(sp_points3, CRS("+init=epsg:4326")) %>%
     as.tibble() %>%
     rename("nlcd_code" = !!names(.[36])) %>%
-    left_join(nlcd_codes, by = "nlcd_code")
+    left_join(nlcd_codes, by = "nlcd_code") %>%
+    # add city name tag (downside is for cities that overlap like Oakland, CA and we need
+    # to delete duplicates. some San Jose sites might read as San Francisco, CA. not too bad?)
+    mutate (city = city_name)
 }
