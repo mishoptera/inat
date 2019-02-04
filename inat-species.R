@@ -81,7 +81,8 @@ city_nlcd <- function (city_name, sp_all) {
   #make it back into a normal dataframe again
   sp_city_wNLCD <- spTransform(sp_points3, CRS("+init=epsg:4326")) %>%
     as.tibble() %>%
-    rename("nlcd_code" = !!names(.[36]))
+    rename("nlcd_code" = !!names(.[36])) %>%
+    left_join(nlcd_codes, by = "nlcd_code")
 }
 
 
