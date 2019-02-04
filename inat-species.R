@@ -57,47 +57,37 @@ sp_map + borders("state") + theme_bw()
 # were pulled from US census as cities over 100,000 residents.
 
 # to test functions
-city_name <- i <- "Oakland, CA"
+city_name <- i <- "San Francisco, CA"
 
 # get NLCD tile for city
 city_nlcd <- function (city_name, sp_all) {
-  city <- get_map(city_name, zoom = 9)
+  city <- get_map(city_name, zoom = 10)
   bb<-attr(city, 'bb')
   extentB <- polygon_from_extent(raster::extent(bb$ll.lon, bb$ur.lon, bb$ll.lat, bb$ur.lat), proj4string = "+proj=longlat +ellps=GRS80   +datum=NAD83 +no_defs")
   city_nlcd <- get_nlcd (template = (extentB), label = city_name)
   # next subset all observations by the same bounding box and then perform the match.
-  # how to do this subset? Sweet! do not need to do any spatial points magic. Just looks
-  # at coordinates and see whether they fall between ll.lat and ur.lat and ll.lon and ur.lon!
   sp_city <- sp_all %>%
     filter(latitude > bb$ll.lat & latitude < bb$ur.lat &
              longitude > bb$ll.lon & longitude < bb$ur.lon)
-  # great that works! new problem is for cities that overlap in bounding boxes how not to have 
-  # duplicate processing?  I guess that's not such a big issue since it's just processing time,
-  # and we can just use 'distinct()' later.
-  coords <- sp_city %>% select(longitude, latitude) %>%
-    na.omit()
-  sp_points <- SpatialPoints(coords, proj4string=CRS("+proj=longlat +datum=WGS84"))
-  
+  # make inat data spatial
+  sp_points <- data.frame(sp_city)
+  coordinates(sp_points) = ~longitude + latitude
+  # transform sp_poiints data to the appropriate NLCD tile
+  proj4string(sp_points) <- CRS("+init=epsg:4326")
+  sp_points2 <- spTransform(sp_points, proj4string(city_nlcd))
+  #extract value to points
+  sp_points3 <- raster::extract(city_nlcd, sp_points2, sp=TRUE)
+  #make it back into a normal dataframe again
+  sp_city_wNLCD <- spTransform(sp_points3, CRS("+init=epsg:4326")) %>%
+    as.tibble() %>%
+    rename("nlcd_code" = !!names(.[36]))
 }
 
-# make inat data spatial
-pts <- data.frame(la)
-pts <- na.omit(pts)
-coordinates(pts) = ~longitude + latitude
 
-#transform pts data to the appropriate NLCD tile
-proj4string(pts) <- CRS("+init=epsg:4326")
-pts2 <- spTransform(pts, proj4string(NLCD_LosAngeles))
 
-#extract value to points
-pts3 <- raster::extract(NLCD_LosAngeles, pts2, sp=TRUE)
 
-#make it back into a normal dataframe again
-pts4 <- spTransform(pts3, CRS("+init=epsg:4326"))
-pts5 <- as.data.frame(pts4)
 
-#assign it as new sf data
-la2 <- pts5
+
 
 
 # what is going on here?
