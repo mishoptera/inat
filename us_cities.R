@@ -12,7 +12,7 @@ library(htmltab)
 
 
 # *************************************************************
-# WEBSCRAPING
+# WEBSCRAPING TO GET US CITIES
 # *************************************************************
 # downloading table of the largest cities in the US
 # 311 incorporated places in the United States with a population of at least 100,000 on July 1, 2017, 
@@ -36,38 +36,8 @@ allCityNames <- bigCities %>%
 save(allCityNames, file = "data/allCityNames.RData")
 
 
-# *************************************************************
-# COMPARE TO INATURALIST RECORDS
-# *************************************************************
-# set up bounding box for US only (optional)
-bounds <- c(25, -125.1, 49.5, -66.7) #all US
 
-# retrieve observations for a given species
-sp_all <- get_inat_obs(taxon_name = "Capsella bursa-pastoris", 
-                       quality = "research", 
-                       maxresults = 99999,
-                       bounds = bounds)
 
-# estimate iNat observations with place_guess for observations that match basic city string.
-# to use in conjunction with place_guess (not perfect because sometimes place_guess write out
-# full name of state, or otherwise messes things up for us)
-cities_match <- str_c(cities, collapse = "|")
-
-sp_cities <- sp_all %>%
-  as.tibble() %>%  
-  filter(str_detect(place_guess, cities_match)) %>%
-  mutate (city = str_extract (place_guess, cities_match)) 
-
-# how many cities have observations that match place_guess?, and which cities should we run NLCD on?
-num_obs_per_city <- sp_cities %>%
-  group_by (city) %>%
-  summarise (obs = n()) %>%
-  arrange (desc(obs)) 
-num_obs_per_city
-
-cities_to_nlcd <- num_obs_per_city %>% 
-  filter(obs > 10) %>%
-  pull(city)
 
 
 
