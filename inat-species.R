@@ -17,6 +17,7 @@ library(sf)
 load('data/all_inat.Rdata')
 load('data/cities.Rdata')
 load('data/allCityNames.Rdata')
+load('data/nlcd_codes.Rdata')
 
 # source files
 source("keys.R")
