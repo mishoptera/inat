@@ -72,8 +72,11 @@ template <- sp_all %>%
 initial_run <- city_priority(sp_all, cities)
 
 # call function and add all together
+lapply (initial_run, function(i){ 
+  template <- bind_rows(city_nlcd(i, sp_all))  
+  })
+
 sp_all_wNLCD <- template %>%
-  bind_rows(lapply(initial_run, function(i){ city_nlcd(i, sp_all, template)})) %>%
   slice(-1) %>%
   distinct(id, .keep_all = TRUE)
 
