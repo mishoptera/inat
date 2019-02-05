@@ -72,14 +72,10 @@ template <- sp_all %>%
 initial_run <- city_priority(sp_all, cities)
 
 # call function and add all together
-template <- city_nlcd("San Francisco, CA", sp_all)
-test <- city_nlcd(city_name, sp_all, template)
-test
+sp_all_wNLCD <- template %>%
+  bind_rows(lapply(initial_run, function(i){ city_nlcd(i, sp_all, template)})) %>%
+  slice(-1)
 
-lapply(initial_run, function(i, sp_all, template){
-  assign(paste0("simple_", i) , create_big_table_simple(all_inat %>% filter (taxon == i), i), 
-         envir = .GlobalEnv)
-})
 
 
 
