@@ -59,13 +59,27 @@ sp_map + borders("state") + theme_bw()
 # were pulled from US census as cities over 100,000 residents.
 
 # to test functions
-city_name <- i <- "San Francisco, CA"
+city_name <- i <- "Oakland, CA"
+
+# create a template to be added to. Don't forget to delete later
+template <- sp_all %>%
+  slice(1) %>%
+  mutate(nlcd_code = NA) %>%
+  select(-c(latitude, longitude), everything()) %>%
+  mutate(nlcd_simple = NA, nlcd_category = NA, nlcd_desc = NA, city = NA)
 
 # decide which cities to run code on (these are the cities that are estimated to have over 10 obs
 initial_run <- city_priority(sp_all, cities)
 
 # call function and add all together
+template <- city_nlcd("San Francisco, CA", sp_all)
+test <- city_nlcd(city_name, sp_all, template)
+test
 
+lapply(initial_run, function(i, sp_all, template){
+  assign(paste0("simple_", i) , create_big_table_simple(all_inat %>% filter (taxon == i), i), 
+         envir = .GlobalEnv)
+})
 
 
 
