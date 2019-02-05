@@ -58,8 +58,9 @@ sp_map + borders("state") + theme_bw()
 # To make it easier to process, limited to just the biggest cities in the country which
 # were pulled from US census as cities over 100,000 residents.
 
-# to test functions
-city_name <- i <- "Oakland, CA"
+# decide which cities to run code on (these are the cities that are estimated to have over 10 obs
+initial_run <- city_priority(sp_all, cities)
+
 
 # create a template to be added to. Don't forget to delete later
 template <- sp_all %>%
@@ -68,12 +69,10 @@ template <- sp_all %>%
   select(-c(latitude, longitude), everything()) %>%
   mutate(nlcd_simple = NA, nlcd_category = NA, nlcd_desc = NA, city = NA)
 
-# decide which cities to run code on (these are the cities that are estimated to have over 10 obs
-initial_run <- city_priority(sp_all, cities)
 
 # call function and add all together
 lapply (initial_run, function(i){ 
-  template <- bind_rows(city_nlcd(i, sp_all))  
+  template <- template %>% bind_rows(city_nlcd(i, sp_all))  
   })
 
 sp_all_wNLCD <- template %>%
