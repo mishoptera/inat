@@ -61,7 +61,6 @@ sp_map + borders("state") + theme_bw()
 # decide which cities to run code on (these are the cities that are estimated to have over 10 obs
 initial_run <- city_priority(sp_all, cities)
 
-
 # create a template to be added to. Don't forget to delete later
 template <- sp_all %>%
   slice(1) %>%
@@ -72,7 +71,8 @@ template <- sp_all %>%
 
 # call function and add all together
 lapply (initial_run, function(i){ 
-  template <- template %>% bind_rows(city_nlcd(i, sp_all))  
+  print(i)
+  assign("template", city_nlcd(i, sp_all, template), envir = .GlobalEnv)
   })
 
 sp_all_wNLCD <- template %>%
