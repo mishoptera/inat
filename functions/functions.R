@@ -44,7 +44,7 @@ city_priority <- function(sp_all, cities){
 # FUNCTION TO MATCH NLCD VALUES FOR EACH OVSERVATION
 # *************************************************************
 # get NLCD tile for city
-city_nlcd <- function (city_name, sp_all) {
+city_nlcd <- function (city_name, sp_all, template) {
   city <- get_map(city_name, zoom = 10)
   bb<-attr(city, 'bb')
   extentB <- polygon_from_extent(raster::extent(bb$ll.lon, bb$ur.lon, bb$ll.lat, bb$ur.lat), proj4string = "+proj=longlat +ellps=GRS80   +datum=NAD83 +no_defs")
@@ -68,5 +68,7 @@ city_nlcd <- function (city_name, sp_all) {
     left_join(nlcd_codes, by = "nlcd_code") %>%
     # add city name tag (downside is for cities that overlap like Oakland, CA and we need
     # to delete duplicates. some San Jose sites might read as San Francisco, CA. not too bad?)
-    mutate (city = city_name)
+    mutate (city = city_name) %>%
+    bind_rows(template, .)
+  return(sp_city_wNLCD)
 }
