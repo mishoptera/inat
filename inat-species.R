@@ -80,7 +80,13 @@ sp_all_wNLCD <- template %>%
   distinct(id, .keep_all = TRUE)
 
 
-
+# *************************************************************
+# SOME EXPLORATION OF THIS...
+# *************************************************************
+# what makes the most sense to use this for?
+sp_all_wNLCD %>%
+  group_by(nlcd_simple) %>%
+  summarise(count = n())
 
 
 
