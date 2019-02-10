@@ -70,7 +70,7 @@ template <- sp_all %>%
 
 
 # call function and add all together
-lapply (initial_run, function(i){ 
+lapply (cities, function(i){ 
   print(i)
   assign("template", city_nlcd(i, sp_all, template), envir = .GlobalEnv)
   })
@@ -87,6 +87,10 @@ sp_all_wNLCD <- template %>%
 sp_all_wNLCD %>%
   group_by(nlcd_simple) %>%
   summarise(count = n())
+
+# map observations
+sp_map_wNLCD <- inat_map(sp_all_wNLCD, plot = FALSE)
+sp_map_wNLCD + borders("state") + theme_bw()
 
 
 
