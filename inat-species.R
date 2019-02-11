@@ -70,7 +70,7 @@ template <- sp_all %>%
 
 
 # call function and add all together
-lapply (cities, function(i){ 
+lapply (initial_run, function(i){ 
   print(i)
   assign("template", city_nlcd(i, sp_all, template), envir = .GlobalEnv)
   })
@@ -83,14 +83,21 @@ sp_all_wNLCD <- template %>%
 # *************************************************************
 # SOME EXPLORATION OF THIS...
 # *************************************************************
-# what makes the most sense to use this for?
-sp_all_wNLCD %>%
-  group_by(nlcd_simple) %>%
-  summarise(count = n())
-
 # map observations
 sp_map_wNLCD <- inat_map(sp_all_wNLCD, plot = FALSE)
 sp_map_wNLCD + borders("state") + theme_bw()
+
+
+# how many observations are left after filtering by cities?
+sp_all_wlNLCD %>% distinct (id)
+
+
+# summary table of number of obs in each land cover type by city
+nlcd_summary <- sp_all_wNLCD %>%
+  group_by(city, nlcd_simple) %>%
+  summarise(count = n()) %>%
+  spread(nlcd_simple, count) %>%
+  select (city, n, d1, d2, d3, d4, everything())
 
 
 
