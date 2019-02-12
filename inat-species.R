@@ -91,7 +91,6 @@ sp_map_wNLCD + borders("state") + theme_bw()
 # how many observations are left after filtering by cities?
 sp_all_wlNLCD %>% distinct (id)
 
-
 # summary table of number of obs in each land cover type by city
 nlcd_summary <- sp_all_wNLCD %>%
   group_by(city, nlcd_simple) %>%
@@ -99,6 +98,12 @@ nlcd_summary <- sp_all_wNLCD %>%
   spread(nlcd_simple, count) %>%
   select (city, n, d1, d2, d3, d4, everything())
 
+
+# creating slope of each city
+slopes <- nlcd_summary %>%
+  rowwise() %>%  #this is such an important thing!!!
+  mutate(slope = get_slope(n,d1, d2, d3, d4)) 
+  ungroup() 
 
 
 
