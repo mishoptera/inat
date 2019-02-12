@@ -72,3 +72,13 @@ city_nlcd <- function (city_name, sp_all, template) {
     bind_rows(template, .)
   return(sp_city_wNLCD)
 }
+
+# *************************************************************
+# FUNCTION TO DETERMINE SLOPE FOR CITY
+# *************************************************************
+get_slope <- function(n, d1, d2, d3, d4) { 
+  x <- c(1:5)
+  y <- c(n, d1, d2, d3, d4)
+  slope_result <- lm(y~x, na.action=na.exclude)$coeff[[2]]
+  return(slope_result)
+}
