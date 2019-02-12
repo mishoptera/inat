@@ -98,7 +98,6 @@ nlcd_summary <- sp_all_wNLCD %>%
   spread(nlcd_simple, count) %>%
   select (city, n, d1, d2, d3, d4, everything())
 
-
 # creating slope of each city
 slopes <- nlcd_summary %>%
   rowwise() %>%  #this is such an important thing!!!
