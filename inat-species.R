@@ -61,13 +61,12 @@ sp_map + borders("state") + theme_bw()
 # decide which cities to run code on (these are the cities that are estimated to have over 10 obs
 initial_run <- city_priority(sp_all, cities)
 
-# create a template to be added to. Don't forget to delete later
+# create a template to be added to which will be deleted later.
 template <- sp_all %>%
   slice(1) %>%
   mutate(nlcd_code = NA) %>%
   select(-c(latitude, longitude), everything()) %>%
   mutate(nlcd_simple = NA, nlcd_category = NA, nlcd_desc = NA, city = NA)
-
 
 # call function and add all together
 lapply (initial_run, function(i){ 
@@ -87,7 +86,6 @@ sp_all_wNLCD <- template %>%
 sp_map_wNLCD <- inat_map(sp_all_wNLCD, plot = FALSE)
 sp_map_wNLCD + borders("state") + theme_bw()
 
-
 # how many observations are left after filtering by cities?
 sp_all_wlNLCD %>% distinct (id)
 
@@ -103,6 +101,20 @@ slopes <- nlcd_summary %>%
   rowwise() %>%  #this is such an important thing!!!
   mutate(slope = get_slope(n,d1, d2, d3, d4)) 
   ungroup() 
+# on a single species basis this is not that useful because we can't
+# tease apart whether cities have more observations in natural or more urban
+# areas because of a biological reason or because of collecting biases.
+# For examples, lots of observations in D3 for NY relative to N, but maybe
+# that's just what the majority of the landcover is.  But even accounting
+# for actual space, hard to estimate actual collecting effort per land cover
+# type based on a single species.  What to do?
+  
+# Main question: does this species favor more urban or natural land use type
+# based on region?
+  
+# In this case, will need to find a way to account for observation basis for each
+# species. Maybe this is where "list length" methods become valuable? Yay,
+# more forays into Bayesian occupancy modeling!
 
 
 
