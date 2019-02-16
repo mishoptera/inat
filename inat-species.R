@@ -114,7 +114,9 @@ slopes <- nlcd_summary %>%
   
 # In this case, will need to find a way to account for observation basis for each
 # species. Maybe this is where "list length" methods become valuable? Yay,
-# more forays into Bayesian occupancy modeling!
+# more forays into Bayesian occupancy modeling!  Have since redownloaded Gio's paper
+# along with the script used in his paper and am trying to figure out how to
+# make this relevant to what I'm doing here.  Why use NIMBLE?
 
 
 
