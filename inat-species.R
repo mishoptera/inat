@@ -116,7 +116,13 @@ slopes <- nlcd_summary %>%
 # species. Maybe this is where "list length" methods become valuable? Yay,
 # more forays into Bayesian occupancy modeling!  Have since redownloaded Gio's paper
 # along with the script used in his paper and am trying to figure out how to
-# make this relevant to what I'm doing here.  Why use NIMBLE?
+# make this relevant to what I'm doing here.  Why use NIMBLE?  I suspect I may
+# be getting ahead of myself the more I read about the NIMBLE package.
+  
+# Need some way to account for effort per land use type per city. List Length.
+# How to tease apart more effort versus legit more species? Maybe I need to create
+# a metric based on the super wide spread species that capture relative number of
+# observations for each of those?
 
 
 
