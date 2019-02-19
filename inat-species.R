@@ -121,7 +121,7 @@ slopes <- nlcd_summary %>%
   
 # Need some way to account for effort per land use type per city. List Length.
 # How to tease apart more effort versus legit more species? Maybe I need to create
-# a metric based on the super wide spread species that capture relative number of
+# a metric based on the super widespread species that capture relative number of
 # observations for each of those?
 
 

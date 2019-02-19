@@ -33,7 +33,7 @@ city_priority <- function(sp_all, cities){
   num_obs_per_city
   
   cities_to_nlcd <- num_obs_per_city %>% 
-    filter(obs > 10) %>%
+    filter(obs > 5) %>%
     pull(city)
   
   return (cities_to_nlcd)
@@ -82,3 +82,8 @@ get_slope <- function(n, d1, d2, d3, d4) {
   slope_result <- lm(y~x, na.action=na.exclude)$coeff[[2]]
   return(slope_result)
 }
+
+
+# *************************************************************
+# FUNCTION TO DETERMINE SLOPE FOR CITY
+# *************************************************************
