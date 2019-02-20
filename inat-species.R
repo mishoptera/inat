@@ -18,6 +18,8 @@ load('data/all_inat.Rdata')
 load('data/cities.Rdata')
 load('data/allCityNames.Rdata')
 load('data/nlcd_codes.Rdata')
+load('data/initial_run_sp.Rdata') #slopes file for initial cities for sp
+
 
 # source files
 source("functions/functions.R")
