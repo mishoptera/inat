@@ -123,6 +123,10 @@ slopes <- nlcd_summary %>%
 # How to tease apart more effort versus legit more species? Maybe I need to create
 # a metric based on the super widespread species that capture relative number of
 # observations for each of those?
+  
+# new problem. I think since running these, the memory on my computer is getting
+# eaten up.  Was a nice exercise to do the nlcd matching, but perhaps its not
+# the most efficient way to address this problem...
 
 
 
