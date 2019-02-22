@@ -103,37 +103,5 @@ slopes <- nlcd_summary %>%
   rowwise() %>%  #this is such an important thing!!!
   mutate(slope = get_slope(n,d1, d2, d3, d4)) 
   ungroup() 
-# on a single species basis this is not that useful because we can't
-# tease apart whether cities have more observations in natural or more urban
-# areas because of a biological reason or because of collecting biases.
-# For examples, lots of observations in D3 for NY relative to N, but maybe
-# that's just what the majority of the landcover is.  But even accounting
-# for actual space, hard to estimate actual collecting effort per land cover
-# type based on a single species.  What to do?
-  
-# Main question: does this species favor more urban or natural land use type
-# based on region?
-  
-# In this case, will need to find a way to account for observation basis for each
-# species. Maybe this is where "list length" methods become valuable? Yay,
-# more forays into Bayesian occupancy modeling!  Have since redownloaded Gio's paper
-# along with the script used in his paper and am trying to figure out how to
-# make this relevant to what I'm doing here.  Why use NIMBLE?  I suspect I may
-# be getting ahead of myself the more I read about the NIMBLE package.
-  
-# Need some way to account for effort per land use type per city. List Length.
-# How to tease apart more effort versus legit more species? Maybe I need to create
-# a metric based on the super widespread species that capture relative number of
-# observations for each of those?
-  
-# new problem. I think since running these, the memory on my computer is getting
-# eaten up.  Was a nice exercise to do the nlcd matching, but perhaps its not
-# the most efficient way to address this problem...
-  
-# no! I only saved the 'slopes' file which is the summary--not the file with all
-# the useful data. Now i'll have to run everything again. clearly this is not
-# sustainable!
-
-
 
 
