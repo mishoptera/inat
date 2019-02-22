@@ -129,6 +129,10 @@ slopes <- nlcd_summary %>%
 # new problem. I think since running these, the memory on my computer is getting
 # eaten up.  Was a nice exercise to do the nlcd matching, but perhaps its not
 # the most efficient way to address this problem...
+  
+# no! I only saved the 'slopes' file which is the summary--not the file with all
+# the useful data. Now i'll have to run everything again. clearly this is not
+# sustainable!
 
 
 
